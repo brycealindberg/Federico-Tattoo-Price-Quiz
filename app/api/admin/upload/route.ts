@@ -5,6 +5,7 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get("image") as File;
   const price = parseInt(formData.get("price") as string, 10);
+  const description = (formData.get("description") as string) || "";
 
   if (!file || !price || price <= 0) {
     return NextResponse.json(
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error: dbError } = await supabase
     .from("tattoos")
-    .insert({ image_url: urlData.publicUrl, price })
+    .insert({ image_url: urlData.publicUrl, price, description })
     .select()
     .single();
 

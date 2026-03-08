@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Tattoo, QuizQuestion, QuizResult } from "@/lib/types";
 import { generateChoices } from "@/lib/generate-prices";
+import Link from "next/link";
 import StartScreen from "@/components/start-screen";
 import QuizCard from "@/components/quiz-card";
 import ResultsScreen from "@/components/results-screen";
@@ -16,7 +17,6 @@ export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<QuizResult[]>([]);
 
-  // On mount: fetch total available tattoos
   useEffect(() => {
     fetch("/api/quiz?count=1")
       .then((res) => res.json())
@@ -70,7 +70,6 @@ export default function Home() {
     setQuestions([]);
     setCurrentIndex(0);
     setResults([]);
-    // Re-fetch total in case new tattoos were added
     fetch("/api/quiz?count=1")
       .then((res) => res.json())
       .then((data) => {
@@ -80,7 +79,14 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="relative bg-zinc-950 text-zinc-50">
+      <Link
+        href="/admin"
+        className="fixed right-3 top-3 z-50 rounded-full border border-zinc-800 bg-zinc-900/80 px-3 py-1.5 text-xs font-medium text-zinc-500 backdrop-blur-sm transition-colors hover:border-zinc-700 hover:text-zinc-300"
+      >
+        Admin
+      </Link>
+
       {gameState === "start" && (
         <StartScreen totalAvailable={totalAvailable} onStart={startQuiz} />
       )}

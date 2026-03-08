@@ -2,6 +2,7 @@ export interface Tattoo {
   id: string;
   image_url: string;
   price: number;
+  description: string;
   created_at: string;
 }
 

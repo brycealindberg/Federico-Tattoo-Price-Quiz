@@ -15,6 +15,22 @@ export async function GET() {
   return NextResponse.json({ tattoos: data });
 }
 
+export async function PATCH(request: NextRequest) {
+  const { id, description } = await request.json();
+  const supabase = createServiceClient();
+
+  const { error } = await supabase
+    .from("tattoos")
+    .update({ description })
+    .eq("id", id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+
 export async function DELETE(request: NextRequest) {
   const { id, image_url } = await request.json();
   const supabase = createServiceClient();
