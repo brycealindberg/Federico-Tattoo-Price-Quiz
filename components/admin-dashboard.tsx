@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef, ChangeEvent, FormEvent } from "react";
 import { Tattoo } from "@/lib/types";
+import { formatPriceRange } from "@/lib/generate-prices";
 
 export default function AdminDashboard() {
   const [tattoos, setTattoos] = useState<Tattoo[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [price, setPrice] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
   const [description, setDescription] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -43,12 +45,13 @@ export default function AdminDashboard() {
   async function handleUpload(e: FormEvent) {
     e.preventDefault();
     const file = fileRef.current?.files?.[0];
-    if (!file || !price) return;
+    if (!file || !priceMin || !priceMax) return;
 
     setUploading(true);
     const formData = new FormData();
     formData.append("image", file);
-    formData.append("price", price);
+    formData.append("price_min", priceMin);
+    formData.append("price_max", priceMax);
     formData.append("description", description);
 
     try {
@@ -58,7 +61,8 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        setPrice("");
+        setPriceMin("");
+        setPriceMax("");
         setDescription("");
         setPreview(null);
         if (fileRef.current) fileRef.current.value = "";
@@ -72,7 +76,7 @@ export default function AdminDashboard() {
   }
 
   async function handleDelete(tattoo: Tattoo) {
-    if (!confirm(`Delete this tattoo ($${tattoo.price})?`)) return;
+    if (!confirm(`Delete this tattoo (${formatPriceRange(tattoo.price_min, tattoo.price_max)})?`)) return;
 
     try {
       const res = await fetch("/api/admin/tattoos", {
@@ -159,15 +163,26 @@ export default function AdminDashboard() {
 
             {/* Fields */}
             <div className="flex flex-1 flex-col gap-3">
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="Price ($)"
-                min="1"
-                className="rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-50 placeholder-zinc-600 outline-none transition-all focus:ring-2 focus:ring-amber-500/50"
-                required
-              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={priceMin}
+                  onChange={(e) => setPriceMin(e.target.value)}
+                  placeholder="Min price ($)"
+                  min="1"
+                  className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-50 placeholder-zinc-600 outline-none transition-all focus:ring-2 focus:ring-amber-500/50"
+                  required
+                />
+                <input
+                  type="number"
+                  value={priceMax}
+                  onChange={(e) => setPriceMax(e.target.value)}
+                  placeholder="Max price ($)"
+                  min="1"
+                  className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-50 placeholder-zinc-600 outline-none transition-all focus:ring-2 focus:ring-amber-500/50"
+                  required
+                />
+              </div>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -177,7 +192,7 @@ export default function AdminDashboard() {
               />
               <button
                 type="submit"
-                disabled={uploading || !preview || !price}
+                disabled={uploading || !preview || !priceMin || !priceMax}
                 className="rounded-xl bg-amber-500 py-3 font-bold text-zinc-950 transition-all hover:bg-amber-400 active:scale-[0.98] disabled:opacity-40"
               >
                 {uploading ? "Uploading..." : "Upload"}
@@ -220,7 +235,7 @@ export default function AdminDashboard() {
 
                   <div className="p-2.5">
                     <div className="text-center text-sm font-semibold text-zinc-200">
-                      ${tattoo.price.toLocaleString()}
+                      {formatPriceRange(tattoo.price_min, tattoo.price_max)}
                     </div>
                     {editingId === tattoo.id ? (
                       <div className="mt-2 flex flex-col gap-1.5">

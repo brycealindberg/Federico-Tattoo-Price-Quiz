@@ -33,7 +33,7 @@ export default function Home() {
     if (!data.tattoos || data.tattoos.length === 0) return;
 
     const quizQuestions: QuizQuestion[] = data.tattoos.map((tattoo: Tattoo) => {
-      const { choices, correctIndex } = generateChoices(tattoo.price);
+      const { choices, correctIndex } = generateChoices(tattoo.price_min, tattoo.price_max);
       return { tattoo, choices, correctIndex };
     });
 
@@ -44,11 +44,11 @@ export default function Home() {
   }
 
   const handleAnswer = useCallback(
-    (chosenPrice: number, isCorrect: boolean) => {
+    (chosenPrice: [number, number], isCorrect: boolean) => {
       const question = questions[currentIndex];
       const result: QuizResult = {
         tattoo: question.tattoo,
-        correctPrice: question.tattoo.price,
+        correctPrice: [question.tattoo.price_min, question.tattoo.price_max],
         chosenPrice,
         isCorrect,
       };

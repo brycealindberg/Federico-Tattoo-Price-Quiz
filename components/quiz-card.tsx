@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { QuizQuestion } from "@/lib/types";
+import { formatPriceRange } from "@/lib/generate-prices";
 
 interface QuizCardProps {
   question: QuizQuestion;
   questionNumber: number;
   totalQuestions: number;
-  onAnswer: (chosenPrice: number, isCorrect: boolean) => void;
+  onAnswer: (chosenPrice: [number, number], isCorrect: boolean) => void;
 }
 
 export default function QuizCard({
@@ -76,7 +77,7 @@ export default function QuizCard({
         {revealed && !isCorrect && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-zinc-950/70 px-6 backdrop-blur-sm">
             <p className="text-lg font-bold text-red-400">
-              ${question.tattoo.price.toLocaleString()}
+              {formatPriceRange(question.tattoo.price_min, question.tattoo.price_max)}
             </p>
             {question.tattoo.description && (
               <p className="max-w-xs text-center text-xs leading-relaxed text-zinc-400">
@@ -121,7 +122,7 @@ export default function QuizCard({
                 disabled={revealed}
                 className={cls}
               >
-                ${price.toLocaleString()}
+                {formatPriceRange(price[0], price[1])}
               </button>
             );
           })}
@@ -140,7 +141,7 @@ export default function QuizCard({
                     : "border-zinc-800/50 bg-zinc-900/50 text-zinc-700"
             }`}
           >
-            ${question.choices[4].toLocaleString()}
+            {formatPriceRange(question.choices[4][0], question.choices[4][1])}
           </button>
         )}
       </div>

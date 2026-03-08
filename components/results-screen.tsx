@@ -1,6 +1,7 @@
 "use client";
 
 import { QuizResult } from "@/lib/types";
+import { formatPriceRange } from "@/lib/generate-prices";
 
 interface ResultsScreenProps {
   results: QuizResult[];
@@ -64,11 +65,11 @@ export default function ResultsScreen({
               <div className="p-2.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-emerald-400">
-                    ${result.correctPrice.toLocaleString()}
+                    {formatPriceRange(result.correctPrice[0], result.correctPrice[1])}
                   </span>
                   {!result.isCorrect && (
                     <span className="font-semibold text-red-400 line-through">
-                      ${result.chosenPrice.toLocaleString()}
+                      {formatPriceRange(result.chosenPrice[0], result.chosenPrice[1])}
                     </span>
                   )}
                 </div>

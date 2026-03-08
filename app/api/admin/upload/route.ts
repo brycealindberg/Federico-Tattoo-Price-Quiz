@@ -4,12 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get("image") as File;
-  const price = parseInt(formData.get("price") as string, 10);
+  const priceMin = parseInt(formData.get("price_min") as string, 10);
+  const priceMax = parseInt(formData.get("price_max") as string, 10);
   const description = (formData.get("description") as string) || "";
 
-  if (!file || !price || price <= 0) {
+  if (!file || !priceMin || priceMin <= 0 || !priceMax || priceMax < priceMin) {
     return NextResponse.json(
-      { error: "Image and valid price required" },
+      { error: "Image and valid price range required (max >= min > 0)" },
       { status: 400 }
     );
   }
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error: dbError } = await supabase
     .from("tattoos")
-    .insert({ image_url: urlData.publicUrl, price, description })
+    .insert({ image_url: urlData.publicUrl, price_min: priceMin, price_max: priceMax, description })
     .select()
     .single();
 
